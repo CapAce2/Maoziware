@@ -49,6 +49,37 @@
         .night-mode button:hover {
             background-color: #666;
         }
+        .image-container {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .image-text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .image-container:hover .image-text {
+            opacity: 1;
+        }
+        .details-container {
+            text-align: center;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        .button-container button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -93,11 +124,59 @@
                     content.innerHTML = '<h1>欢迎来到 Maoziware</h1>';
                     break;
                 case 'buy':
-                    content.innerHTML = '<h1>辅助专区</h1>';
+                    content.innerHTML = `
+                        <h1>购买辅助</h1>
+                        <div class="image-container" onclick="showDetails('timapple')">
+                            <img src="timapple.jpg" alt="Tim Apple" style="width: 350px; height: auto;">
+                            <div class="image-text">Tim-apple</div>
+                        </div>
+                        <div class="image-container" onclick="showDetails('aimstar')">
+                            <img src="aimstar.jpg" alt="Aimstar" style="width: 350px; height: 185px;">
+                            <div class="image-text">Aimstar</div>
+                        </div>
+                    `;
                     break;
                 case 'about':
                     content.innerHTML = '<h1>关于我们</h1>';
                     break;
+            }
+        }
+
+        function showDetails(product) {
+            const content = document.getElementById('content');
+            switch(product) {
+                case 'timapple':
+                    content.innerHTML = `
+                        <div class="details-container">
+                            <h1>Tim-apple 详情</h1>
+                            <img src="timapple.jpg" alt="Tim Apple" style="width: 1000px; height: auto;">
+                            <div class="button-container">
+                                <button onclick="changePage('buy')">返回辅助列表</button>
+                                <button onclick="downloadHelper('timapple')">下载该辅助</button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'aimstar':
+                    content.innerHTML = `
+                        <div class="details-container">
+                            <h1>Aimstar 详情</h1>
+                            <img src="aimstar.jpg" alt="Aimstar" style="width: 1000px; height: auto;">
+                            <div class="button-container">
+                                <button onclick="changePage('buy')">返回辅助列表</button>
+                                <button onclick="downloadHelper('aimstar')">下载该辅助</button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        function downloadHelper(helperName) {
+            if (helperName === 'timapple') {
+                window.location.href = 'https://github.com/CapAce2/Maoziware/raw/refs/heads/main/Tim_Apple%E3%80%90%E4%B8%AD%E6%96%87%E7%89%88%E3%80%91-10.3.zip';
+            } else if (helperName === 'aimstar') {
+                window.location.href = 'https://github.com/CapAce2/Maoziware/raw/refs/heads/main/AimStar%E4%B8%AD%E6%96%87%E7%89%88v1.3.1.zip';
             }
         }
 
