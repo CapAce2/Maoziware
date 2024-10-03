@@ -95,6 +95,7 @@
             event.preventDefault();
             var inviteCode = document.getElementById('inviteCode').value;
             if (inviteCode === '114514') {
+                sessionStorage.setItem('isLoggedIn', 'true'); // 使用 sessionStorage 保存登录状态
                 var overlay = document.getElementById('overlay');
                 overlay.style.display = 'flex';
                 var popup = overlay.querySelector('.popup');
@@ -111,7 +112,7 @@
                     countdownElement.textContent = countdown;
                     if (countdown <= 0) {
                         clearInterval(countdownInterval);
-                        window.location.href = 'index2.html'; // 这里改为 'index.html'
+                        window.location.href = 'index.html'; // 跳转到主页
                     }
                 }, 1000);
             } else {
