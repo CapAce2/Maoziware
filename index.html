@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maoziware - 主页</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #f1f1f1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        button {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .night-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        .night-mode .sidebar {
+            background-color: #222;
+        }
+        .night-mode button {
+            background-color: #555;
+        }
+        .night-mode button:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <button onclick="changePage('home')">主页</button>
+        <button onclick="changePage('buy')">购买</button>
+        <button onclick="changePage('about')">关于我们</button>
+        <button onclick="toggleNightMode()" id="modeToggle">夜间模式</button>
+    </div>
+    <div class="content" id="content">
+        <h1>欢迎来到 Maoziware</h1>
+    </div>
+
+    <script>
+        // 检查是否已经存在夜间模式设置
+        function checkNightMode() {
+            const isNightMode = localStorage.getItem('nightMode') === 'true';
+            if (isNightMode) {
+                document.body.classList.add('night-mode');
+                document.getElementById('modeToggle').textContent = '日间模式';
+            }
+        }
+
+        // 页面加载时检查夜间模式
+        window.addEventListener('load', checkNightMode);
+
+        function changePage(page) {
+            const content = document.getElementById('content');
+            switch(page) {
+                case 'home':
+                    content.innerHTML = '<h1>欢迎来到 Maoziware</h1>';
+                    break;
+                case 'buy':
+                    content.innerHTML = '<h1>购买 Maoziware</h1>';
+                    break;
+                case 'about':
+                    content.innerHTML = '<h1>关于我们</h1>';
+                    break;
+            }
+        }
+
+        function toggleNightMode() {
+            document.body.classList.toggle('night-mode');
+            const modeToggle = document.getElementById('modeToggle');
+            
+            // 切换按钮文本
+            if (document.body.classList.contains('night-mode')) {
+                modeToggle.textContent = '日间模式';
+            } else {
+                modeToggle.textContent = '夜间模式';
+            }
+            
+            // 保存夜间模式设置到 localStorage
+            const isNightMode = document.body.classList.contains('night-mode');
+            localStorage.setItem('nightMode', isNightMode);
+        }
+    </script>
+</body>
+</html>
