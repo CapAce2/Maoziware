@@ -94,7 +94,6 @@
     </div>
 
     <script>
-        // 检查是否已经存在夜间模式设置
         function checkNightMode() {
             const isNightMode = localStorage.getItem('nightMode') === 'true';
             if (isNightMode) {
@@ -103,17 +102,15 @@
             }
         }
 
-        // 页面加载时检查夜间模式和登录状态
         window.addEventListener('load', function() {
             checkNightMode();
             checkLogin();
         });
 
-        // 检查用户是否已登录
         function checkLogin() {
             const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
             if (!isLoggedIn) {
-                window.location.href = 'index.html'; // 未登录则跳转到登录页面
+                window.location.href = 'index.html';
             }
         }
 
@@ -133,6 +130,10 @@
                         <div class="image-container" onclick="showDetails('aimstar')">
                             <img src="aimstar.jpg" alt="Aimstar" style="width: 350px; height: 185px;">
                             <div class="image-text">Aimstar</div>
+                        </div>
+                        <div class="image-container" onclick="showDetails('rensen')">
+                            <img src="rensen.jpg" alt="Rensen" style="width: 350px; height: 185px;">
+                            <div class="image-text">Rensen</div>
                         </div>
                     `;
                     break;
@@ -169,6 +170,18 @@
                         </div>
                     `;
                     break;
+                case 'rensen':
+                    content.innerHTML = `
+                        <div class="details-container">
+                            <h1>Rensen 详情</h1>
+                            <img src="rensen.jpg" alt="Rensen" style="width: 1000px; height: auto;">
+                            <div class="button-container">
+                                <button onclick="changePage('buy')">返回辅助列表</button>
+                                <button onclick="downloadHelper('rensen')">下载该辅助</button>
+                            </div>
+                        </div>
+                    `;
+                    break;
             }
         }
 
@@ -177,6 +190,8 @@
                 window.location.href = 'https://www.123684.com/s/Xv2tVv-Ka3AA';
             } else if (helperName === 'aimstar') {
                 window.location.href = 'https://www.123684.com/s/Xv2tVv-ua3AA';
+            } else if (helperName === 'rensen') {
+                window.location.href = 'https://www.123684.com/s/Xv2tVv-Sa3AA';
             }
         }
 
@@ -184,14 +199,12 @@
             document.body.classList.toggle('night-mode');
             const modeToggle = document.getElementById('modeToggle');
             
-            // 切换按钮文本
             if (document.body.classList.contains('night-mode')) {
                 modeToggle.textContent = '日间模式';
             } else {
                 modeToggle.textContent = '夜间模式';
             }
             
-            // 保存夜间模式设置到 localStorage
             const isNightMode = document.body.classList.contains('night-mode');
             localStorage.setItem('nightMode', isNightMode);
         }
