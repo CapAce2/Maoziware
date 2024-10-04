@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maoziware - 主页</title>
     <link rel="icon" href="app_icon.ico" type="image/x-icon">
+    <!-- 确保在所有其他脚本之前添加 JSONBin.io 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -186,6 +188,23 @@
             color: #fff;
             border-color: #555;
         }
+        
+        /* 加载指示器样式 */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -203,11 +222,87 @@
                 <textarea id="commentInput" placeholder="请输入您的评论" rows="4"></textarea>
                 <button onclick="addComment()">提交评论</button>
             </div>
+            <div id="loader" class="loader"></div>
             <div id="commentList" class="comment-list"></div>
         </div>
     </div>
 
     <script>
+        const binId = '66ff96bfad19ca34f8b2788e'; // 替换为您的 Bin ID
+        const apiKey = '$2a$10$RgEhjqeqmWDCMYTpIQG95eldbefxUbrCbZ8JFtEvwdmZYKd75Ahj.'; // 替换为您的 API 密钥
+
+        function showLoader() {
+            document.getElementById('loader').style.display = 'block';
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        // 加载评论
+        async function loadComments() {
+            showLoader();
+            try {
+                const response = await axios.get(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+                    headers: {
+                        'X-Master-Key': apiKey
+                    }
+                });
+                const comments = response.data.record;
+                const commentList = document.getElementById('commentList');
+                commentList.innerHTML = comments.map(comment => {
+                    const date = new Date(comment.date);
+                    const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+                    return `
+                        <div class="comment">
+                            <p>${comment.text}</p>
+                            <small>${formattedDate}</small>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Failed to load comments:', error);
+            } finally {
+                hideLoader();
+            }
+        }
+
+        // 添加评论
+        async function addComment() {
+            const commentInput = document.getElementById('commentInput');
+            const commentText = commentInput.value.trim();
+            if (commentText) {
+                showLoader();
+                try {
+                    const response = await axios.get(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+                        headers: {
+                            'X-Master-Key': apiKey
+                        }
+                    });
+                    const comments = response.data.record || [];
+                    comments.push({
+                        text: commentText,
+                        date: new Date().toISOString()
+                    });
+
+                    await axios.put(`https://api.jsonbin.io/v3/b/${binId}`, comments, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': apiKey
+                        }
+                    });
+                    commentInput.value = '';
+                    await loadComments();
+                } catch (error) {
+                    console.error('Failed to post comment:', error);
+                } finally {
+                    hideLoader();
+                }
+            }
+        }
+
+        window.addEventListener('load', loadComments);
+
         function checkNightMode() {
             const isNightMode = localStorage.getItem('nightMode') === 'true';
             if (isNightMode) {
@@ -219,7 +314,6 @@
         window.addEventListener('load', function() {
             checkNightMode();
             checkLogin();
-            loadComments(); // 加载评论
         });
 
         function checkLogin() {
@@ -242,10 +336,11 @@
                                 <textarea id="commentInput" placeholder="请输入您的评论" rows="4"></textarea>
                                 <button onclick="addComment()">提交评论</button>
                             </div>
+                            <div id="loader" class="loader"></div>
                             <div id="commentList" class="comment-list"></div>
                         </div>
                     `;
-                    loadComments();
+                    loadComments(); // 确保在切换到主页时重新加载评论
                     break;
                 case 'buy':
                     content.innerHTML = '<h1>辅助专区</h1>';
@@ -315,33 +410,6 @@
             
             const isNightMode = document.body.classList.contains('night-mode');
             localStorage.setItem('nightMode', isNightMode);
-        }
-
-        async function addComment() {
-            const commentInput = document.getElementById('commentInput');
-            const comment = commentInput.value.trim();
-            if (comment) {
-                const comments = JSON.parse(localStorage.getItem('comments') || '[]');
-                const newComment = {
-                    text: comment,
-                    date: new Date().toLocaleString()
-                };
-                comments.push(newComment);
-                localStorage.setItem('comments', JSON.stringify(comments));
-                commentInput.value = '';
-                loadComments();
-            }
-        }
-
-        function loadComments() {
-            const commentList = document.getElementById('commentList');
-            const comments = JSON.parse(localStorage.getItem('comments') || '[]');
-            commentList.innerHTML = comments.map(comment => `
-                <div class="comment">
-                    <p>${comment.text}</p>
-                    <small>${comment.date}</small>
-                </div>
-            `).join('');
         }
     </script>
 </body>
