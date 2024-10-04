@@ -15,32 +15,55 @@
             display: flex;
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* Internet Explorer 10+ */
+        }
+        body::-webkit-scrollbar { /* WebKit */
+            width: 0;
+            height: 0;
         }
         .sidebar {
-            width: 200px;
+            width: 240px; /* 增加侧边栏宽度 */
             background-color: #f1f1f1;
-            padding: 20px;
+            padding: 30px 0; /* 增加上下内边距 */
             display: flex;
             flex-direction: column;
             height: 100vh;
             position: fixed;
             overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1); /* 添加侧边阴影 */
+            z-index: 1000; /* 确保侧边栏在最上层 */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* Internet Explorer 10+ */
+        }
+        .sidebar::-webkit-scrollbar { /* WebKit */
+            width: 0;
+            height: 0;
         }
         .content {
             flex-grow: 1;
             padding: 20px;
-            margin-left: 240px;
-            width: calc(100% - 240px);
+            margin-left: 280px; /* 调整内容区域的左边距，与侧边栏宽对应 */
+            width: calc(100% - 280px); /* 调整内容区域的宽度 */
             box-sizing: border-box;
+            opacity: 1;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* Internet Explorer 10+ */
+        }
+        .content::-webkit-scrollbar { /* WebKit */
+            width: 0;
+            height: 0;
         }
         button {
-            margin-bottom: 10px;
-            padding: 10px;
+            margin-bottom: 15px; /* 增加按钮之间的间距 */
+            padding: 15px 20px; /* 增加按钮内边距 */
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 3px;
             cursor: pointer;
+            font-size: 18px; /* 增加字体大小 */
         }
         button:hover {
             background-color: #45a049;
@@ -70,7 +93,7 @@
         .image-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 确保图片填充整个容器 */
+            object-fit: cover; /* 确图片填充整个容器 */
         }
         .image-text {
             position: absolute;
@@ -109,21 +132,28 @@
                 height: auto;
                 position: static;
                 flex-direction: row;
-                justify-content: space-around;
-                padding: 10px;
+                justify-content: flex-start; /* 修改这里：按钮靠左对齐 */
+                padding: 10px 5px; /* 修改这里：减少左右内边距 */
+                overflow-x: auto; /* 允许横向滚动 */
             }
             .content {
                 margin-left: 0;
                 width: 100%;
                 padding: 10px;
+                box-sizing: border-box; /* 确保padding不会增加总宽度 */
+            }
+            .image-container {
+                width: 100%; /* 使图片容器占满宽度 */
+                height: auto; /* 高度自适应 */
+                margin: 10px 0; /* 调整垂直间距 */
             }
             .image-container img {
-                width: 100% !important;
-                height: auto !important;
+                width: 100%;
+                height: auto;
             }
             .details-container img {
-                width: 100% !important;
-                height: auto !important;
+                width: 100%;
+                height: auto;
             }
             .button-container {
                 display: flex;
@@ -131,6 +161,20 @@
             }
             .button-container button {
                 margin: 5px 0;
+            }
+            .sidebar button {
+                flex: 0 0 auto; /* 修改这里：按钮不会自动增长 */
+                margin: 0 5px;
+                white-space: nowrap;
+                font-size: 14px; /* 调整字体大小以适应小屏幕 */
+                padding: 10px 15px; /* 调整内边距 */
+            }
+            /* 确保按钮文字不换行 */
+            .sidebar button span {
+                display: inline-block;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
         
@@ -141,6 +185,7 @@
             background-color: #f9f9f9;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 20px rgba(0,0,0,0.2); /* 加深阴影 */
         }
         .comment-form {
             width: 100%;
@@ -205,14 +250,168 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* 添加以下样式以确保页面不会水平溢出 */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 240px; /* 增加侧边栏宽度 */
+            background-color: #f1f1f1;
+            padding: 30px 0; /* 增加上下内边距 */
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1); /* 添加侧边阴影 */
+            z-index: 1000; /* 确保侧边栏在最上层 */
+        }
+
+        .sidebar button {
+            margin-bottom: 15px; /* 增加按钮之间的间距 */
+            padding: 15px 20px; /* 增加按钮内边距 */
+            background-color: transparent; /* 透明背景 */
+            color: #333; /* 深色文字，以便在浅色背景上可见 */
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.3s;
+            width: 100%; /* 按钮宽度填满导航栏 */
+            font-size: 18px; /* 增加字体大小 */
+            font-weight: bold; /* 加粗字体 */
+            transition: background-color 0.3s, color 0.3s; /* 添加颜色过渡效果 */
+        }
+
+        .sidebar button:hover {
+            background-color: rgba(0, 0, 0, 0.1); /* 悬停时略微变暗 */
+            color: #4CAF50; /* 悬停时改变文字颜色 */
+        }
+
+        .night-mode .sidebar {
+            background-color: #222;
+        }
+
+        .night-mode .sidebar button {
+            color: #fff; /* 夜间模式下的文字颜色 */
+        }
+
+        .night-mode .sidebar button:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* 夜间模式下悬停时略微变亮 */
+        }
+
+        /* 移动设备适配 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 10px 0;
+                overflow-x: auto;
+            }
+
+            .sidebar button {
+                flex: 1;
+                margin: 0;
+                padding: 15px 10px;
+                text-align: center;
+                white-space: nowrap;
+                font-size: 14px;
+                background-color: transparent; /* 保持透明背景 */
+            }
+
+            .sidebar button:hover {
+                background-color: rgba(0, 0, 0, 0.1); /* 保持悬停效果 */
+            }
+
+            .night-mode .sidebar button:hover {
+                background-color: rgba(255, 255, 255, 0.1); /* 夜间模式下保持悬停效果 */
+            }
+        }
+
+        .image-container-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start; /* 改为从左往右排列 */
+            gap: 20px;
+        }
+
+        .image-container {
+            flex: 0 0 calc(33.333% - 20px);
+            max-width: calc(33.333% - 20px);
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .image-container-wrapper {
+                justify-content: center; /* 在移动设备上保持居中 */
+            }
+            .image-container {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+
+        /* 为当前选中的页面按钮添加样式 */
+        .sidebar button.active {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: #4CAF50;
+        }
+
+        .page-title {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 2.5em;
+            color: #000; /* 日间模式下的黑色 */
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .night-mode .page-title {
+            color: #fff; /* 夜间模式下的白色 */
+        }
+
+        .content.fade-out {
+            opacity: 0;
+        }
+
+        .content.fade-in {
+            opacity: 1;
+        }
+
+        .content.slide-up {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+
+        .content.slide-down {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            .content.slide-left {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+
+            .content.slide-right {
+                transform: translateX(20px);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <button onclick="changePage('home')">主页</button>
-        <button onclick="changePage('buy')">下载辅助</button>
-        <button onclick="changePage('about')">关于我们</button>
-        <button onclick="toggleNightMode()" id="modeToggle">夜间模式</button>
+        <button onclick="changePage('home')"><span>主页</span></button>
+        <button onclick="changePage('buy')"><span>下载辅助</span></button>
+        <button onclick="changePage('about')"><span>关于我们</span></button>
+        <button onclick="toggleNightMode()" id="modeToggle"><span>夜间模式</span></button>
     </div>
     <div class="content" id="content">
         <h1>欢迎来到 Maoziware</h1>
@@ -229,7 +428,7 @@
 
     <script>
         const binId = '66ff96bfad19ca34f8b2788e'; // 替换为您的 Bin ID
-        const apiKey = '$2a$10$RgEhjqeqmWDCMYTpIQG95eldbefxUbrCbZ8JFtEvwdmZYKd75Ahj.'; // 替换为您的 API 密钥
+        const apiKey = '$2a$10$RgEhjqeqmWDCMYTpIQG95eldbefxUbrCbZ8JFtEvwdmZYKd75Ahj.'; // 替换为您 API 密钥
         let lastCommentCount = 0;
 
         function showLoader() {
@@ -322,7 +521,7 @@
             }
         }
 
-        // 添加定期检查新评论的函数
+        // 添加定期检查新评的函数
         function startCommentRefresh() {
             setInterval(() => loadComments(), 10000); // 每10秒检查一次新评论
         }
@@ -331,8 +530,8 @@
         window.addEventListener('load', function() {
             checkNightMode();
             checkLogin();
-            loadComments(true); // 初始加载评论，强制更新
-            startCommentRefresh(); // 开始定期刷新
+            changePage('home'); // 直接调用 changePage 函数，加载主页内容
+            startCommentRefresh(); // 开始定期刷新评论
         });
 
         function checkNightMode() {
@@ -350,52 +549,114 @@
             }
         }
 
+        let currentPage = null;
+        const pageOrder = ['home', 'buy', 'about'];
+        let isFirstPageChange = true;
+
         function changePage(page) {
+            // 如果不是第一次页面切换，且目标页面与当前页面相同，则不执行任何操作
+            if (!isFirstPageChange && page === currentPage) {
+                return;
+            }
+
             const content = document.getElementById('content');
-            content.innerHTML = '';
-            switch(page) {
-                case 'home':
-                    content.innerHTML = `
-                        <h1>欢迎来到 Maoziware</h1>
-                        <div class="comment-section">
-                            <h2>网站评论</h2>
-                            <div class="comment-form">
-                                <textarea id="commentInput" placeholder="请输入您的评论" rows="4"></textarea>
-                                <button onclick="addComment()">提交评论</button>
+            const isMobile = window.innerWidth <= 768;
+            
+            // 确定滑动方向
+            let outClass, inClass;
+            const currentIndex = pageOrder.indexOf(currentPage);
+            const newIndex = pageOrder.indexOf(page);
+            const isMovingForward = newIndex > currentIndex;
+
+            if (isMobile) {
+                outClass = isMovingForward ? 'slide-left' : 'slide-right';
+                inClass = isMovingForward ? 'slide-right' : 'slide-left';
+            } else {
+                outClass = isMovingForward ? 'slide-up' : 'slide-down';
+                inClass = isMovingForward ? 'slide-down' : 'slide-up';
+            }
+            
+            // 如果不是第一次页面切换，添加动画类
+            if (!isFirstPageChange) {
+                content.classList.add(outClass);
+            }
+            
+            // 移除所有按钮的 active 类
+            document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+            
+            // 为当前选中的页面按钮添加 active 类
+            document.querySelector(`.sidebar button[onclick="changePage('${page}')"]`).classList.add('active');
+
+            // 更新内容
+            const updateContent = () => {
+                content.innerHTML = '';
+                
+                switch(page) {
+                    case 'home':
+                        content.innerHTML = `
+                            <h1 class="page-title">欢迎来到 Maoziware</h1>
+                            <div class="comment-section">
+                                <h2>网站评论</h2>
+                                <div class="comment-form">
+                                    <textarea id="commentInput" placeholder="请输入您的评论" rows="4"></textarea>
+                                    <button onclick="addComment()">提交评论</button>
+                                </div>
+                                <div id="loader" class="loader"></div>
+                                <div id="commentList" class="comment-list"></div>
                             </div>
-                            <div id="loader" class="loader"></div>
-                            <div id="commentList" class="comment-list"></div>
-                        </div>
-                    `;
-                    loadComments(true); // 确保在切换到主页时重新加载评论，强制更新
-                    break;
-                case 'buy':
-                    content.innerHTML = '<h1>辅助专区</h1>';
-                    const container = document.createElement('div');
-                    container.className = 'image-container-wrapper';
-                    container.innerHTML = `
-                        <div class="image-container" data-category="csgo" onclick="showDetails('timapple')">
-                            <img src="timapple.jpg" alt="Tim Apple">
-                            <div class="image-text">Tim-apple</div>
-                        </div>
-                        <div class="image-container" data-category="csgo" onclick="showDetails('aimstar')">
-                            <img src="aimstar.jpg" alt="Aimstar">
-                            <div class="image-text">Aimstar</div>
-                        </div>
-                        <div class="image-container" data-category="other" onclick="showDetails('rensen')">
-                            <img src="rensen.jpg" alt="Rensen">
-                            <div class="image-text">Rensen</div>
-                        </div>
-                        <div class="image-container" data-category="csgo" onclick="showDetails('passathook')">
-                            <img src="passathook.jpg" alt="PassatHook">
-                            <div class="image-text">PassatHook</div>
-                        </div>
-                    `;
-                    content.appendChild(container);
-                    break;
-                case 'about':
-                    content.innerHTML = '<h1>关于我们</h1>';
-                    break;
+                        `;
+                        loadComments(true);
+                        break;
+                    case 'buy':
+                        content.innerHTML = '<h1>辅助专区</h1>';
+                        const container = document.createElement('div');
+                        container.className = 'image-container-wrapper';
+                        container.innerHTML = `
+                            <div class="image-container" data-category="csgo" onclick="showDetails('timapple')">
+                                <img src="timapple.jpg" alt="Tim Apple">
+                                <div class="image-text">Tim-apple</div>
+                            </div>
+                            <div class="image-container" data-category="csgo" onclick="showDetails('aimstar')">
+                                <img src="aimstar.jpg" alt="Aimstar">
+                                <div class="image-text">Aimstar</div>
+                            </div>
+                            <div class="image-container" data-category="other" onclick="showDetails('rensen')">
+                                <img src="rensen.jpg" alt="Rensen">
+                                <div class="image-text">Rensen</div>
+                            </div>
+                            <div class="image-container" data-category="csgo" onclick="showDetails('passathook')">
+                                <img src="passathook.jpg" alt="PassatHook">
+                                <div class="image-text">PassatHook</div>
+                            </div>
+                        `;
+                        content.appendChild(container);
+                        break;
+                    case 'about':
+                        content.innerHTML = '<h1>关于我们</h1>';
+                        break;
+                }
+
+                // 如果不是第一次页面切换，添加滑入效果
+                if (!isFirstPageChange) {
+                    content.classList.remove(outClass);
+                    void content.offsetWidth; // 触发重排
+                    content.classList.add(inClass);
+
+                    // 移除滑入类，为下一次切换做准备
+                    setTimeout(() => {
+                        content.classList.remove(inClass);
+                    }, 300);
+                }
+
+                currentPage = page;
+                isFirstPageChange = false;
+            };
+
+            // 如果是第一次页面切换，立即更新内容；否则，等待动画完成
+            if (isFirstPageChange) {
+                updateContent();
+            } else {
+                setTimeout(updateContent, 300);
             }
         }
 
