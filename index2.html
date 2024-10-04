@@ -879,11 +879,23 @@
             const isMovingForward = newIndex > currentIndex;
 
             if (isMobile) {
-                outClass = isMovingForward ? 'slide-left' : 'slide-right';
-                inClass = isMovingForward ? 'slide-right' : 'slide-left';
+                if (page === 'reports' || currentPage === 'reports') {
+                    // 如果是切换到或离开举报受理页面，反转动画方向
+                    outClass = isMovingForward ? 'slide-right' : 'slide-left';
+                    inClass = isMovingForward ? 'slide-left' : 'slide-right';
+                } else {
+                    outClass = isMovingForward ? 'slide-left' : 'slide-right';
+                    inClass = isMovingForward ? 'slide-right' : 'slide-left';
+                }
             } else {
-                outClass = isMovingForward ? 'slide-up' : 'slide-down';
-                inClass = isMovingForward ? 'slide-down' : 'slide-up';
+                if (page === 'reports' || currentPage === 'reports') {
+                    // 如果是切换到或离开举报受理页面，反转动画方向
+                    outClass = isMovingForward ? 'slide-down' : 'slide-up';
+                    inClass = isMovingForward ? 'slide-up' : 'slide-down';
+                } else {
+                    outClass = isMovingForward ? 'slide-up' : 'slide-down';
+                    inClass = isMovingForward ? 'slide-down' : 'slide-up';
+                }
             }
             
             // 移除所有按钮的 active 类
