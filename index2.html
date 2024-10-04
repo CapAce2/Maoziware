@@ -542,7 +542,7 @@
 
         .details-container {
             /* ... 保持其他样式不变 ... */
-            z-index: 1000; /* 确保详情页在遮罩层之上 */
+            z-index: 1000; /* 确保情页在遮罩层之上 */
         }
 
         .comment.admin-comment {
@@ -558,6 +558,95 @@
 
         .night-mode .comment.admin-comment {
             background-color: #2c3e50;
+        }
+
+        /* ... 其他样式保持不变 ... */
+        .comment-actions {
+            margin-top: 5px;
+        }
+        .reply-btn {
+            color: blue;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .report-btn {
+            color: red;
+            cursor: pointer;
+        }
+        .reply-form {
+            margin-top: 10px;
+            display: none;
+        }
+        .admin-panel {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .reply {
+            margin-left: 20px;
+            padding: 5px;
+            background-color: #f9f9f9;
+            border-left: 2px solid #4CAF50;
+            font-size: 0.9em;
+        }
+
+        .night-mode .reply {
+            background-color: #2c3e50;
+            border-left-color: #4CAF50;
+        }
+
+        .reply p {
+            margin: 5px 0;
+        }
+
+        .reply small {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .night-mode .reply small {
+            color: #aaa;
+        }
+
+        .delete-btn {
+            color: red;
+            cursor: pointer;
+            font-size: 0.8em;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+        }
+
+        .comment {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .notification.error {
+            background-color: #f44336;
+        }
+
+        .night-mode .notification {
+            background-color: #2c3e50;
+        }
+
+        .night-mode .notification.error {
+            background-color: #c0392b;
         }
     </style>
 </head>
@@ -610,14 +699,17 @@
         async function loadComments(forceUpdate = false) {
             showLoader();
             try {
+                console.log('Fetching comments...');
                 const response = await axios.get(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
                     headers: {
                         'X-Master-Key': apiKey
                     }
                 });
+                console.log('Response:', response.data);
                 let comments = response.data.record;
                 
                 if (!Array.isArray(comments) || comments.length === 0) {
+                    console.log('No comments found, initializing empty array');
                     comments = [];
                     await axios.put(`https://api.jsonbin.io/v3/b/${binId}`, comments, {
                         headers: {
@@ -626,6 +718,8 @@
                         }
                     });
                 }
+
+                console.log('Comments:', comments);
 
                 // 检查是否有新评论或强制更新
                 if (comments.length > lastCommentCount || forceUpdate) {
@@ -639,20 +733,41 @@
                         return new Date(b.date) - new Date(a.date);
                     });
 
-                    commentList.innerHTML = comments.map(comment => {
+                    commentList.innerHTML = comments.map((comment, index) => {
                         const date = new Date(comment.date);
                         const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
-                        const userType = comment.isAdmin ? '管理员' : '访客';
-                        const adminClass = comment.isAdmin ? 'admin-comment' : '';
-                        const pinnedTag = comment.isAdmin ? '<div class="pinned">置顶</div>' : '';
+                        const deleteButton = sessionStorage.getItem('isAdmin') === 'true' ? 
+                            `<span class="delete-btn" onclick="deleteComment('${comment.id || index}')">删除</span>` : '';
                         return `
-                            <div class="comment ${adminClass}">
-                                ${pinnedTag}
+                            <div class="comment ${comment.isAdmin ? 'admin-comment' : ''}" data-comment-id="${comment.id || index}">
+                                ${comment.isAdmin ? '<div class="pinned">置顶</div>' : ''}
                                 <p>${comment.text}</p>
-                                <small>${formattedDate} - ${userType}</small>
+                                <small>${formattedDate} - ${comment.isAdmin ? '管理员' : '访客'}</small>
+                                <div class="comment-actions">
+                                    <span class="reply-btn" onclick="showReplyForm('${comment.id || index}')">回复</span>
+                                    <span class="report-btn" onclick="reportComment('${comment.id || index}')">举报</span>
+                                </div>
+                                <div class="reply-form" id="replyForm${comment.id || index}">
+                                    <textarea id="replyInput${comment.id || index}" rows="2"></textarea>
+                                    <button onclick="submitReply('${comment.id || index}')">提交回复</button>
+                                </div>
+                                ${comment.replies && comment.replies.length > 0 ? `
+                                    <div class="replies">
+                                        ${comment.replies.map(reply => `
+                                            <div class="reply">
+                                                <p>${reply.text}</p>
+                                                <small>${new Date(reply.date).toLocaleString()} - ${reply.isAdmin ? '管理员' : '访客'}</small>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                                ${deleteButton}
                             </div>
                         `;
                     }).join('');
+                    console.log('Comments loaded and displayed');
+                } else {
+                    console.log('No new comments to display');
                 }
             } catch (error) {
                 console.error('Failed to load comments:', error);
@@ -668,12 +783,7 @@
             if (commentText) {
                 showLoader();
                 try {
-                    const response = await axios.get(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-                        headers: {
-                            'X-Master-Key': apiKey
-                        }
-                    });
-                    let comments = response.data.record;
+                    let comments = await getComments();
                     
                     if (!Array.isArray(comments)) {
                         comments = [];
@@ -681,27 +791,27 @@
 
                     const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
 
+                    const newComment = {
+                        id: Date.now().toString(), // 使用时间戳作为唯一 ID
+                        text: commentText,
+                        date: new Date().toISOString(),
+                        isAdmin: isAdmin
+                    };
+
                     if (isAdmin) {
                         // 如果是管理员，删除之前的管理员评论
                         comments = comments.filter(comment => !comment.isAdmin);
                     }
 
-                    comments.push({
-                        text: commentText,
-                        date: new Date().toISOString(),
-                        isAdmin: isAdmin
-                    });
+                    comments.push(newComment);
 
-                    await axios.put(`https://api.jsonbin.io/v3/b/${binId}`, comments, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': apiKey
-                        }
-                    });
+                    await updateComments(comments);
                     commentInput.value = '';
-                    await loadComments(true); // 强制更新评论
+                    await loadComments(true);
+                    console.log('New comment added:', newComment);
                 } catch (error) {
                     console.error('Failed to post comment:', error);
+                    showNotification('添加评论失败，请稍后重试。', true);
                 } finally {
                     hideLoader();
                 }
@@ -719,6 +829,19 @@
             checkLogin();
             changePage('home'); // 直接调用 changePage 函数，加载主页内容
             startCommentRefresh(); // 开始定期刷新评论
+            if (sessionStorage.getItem('isAdmin') === 'true') {
+                const sidebar = document.querySelector('.sidebar');
+                const reportButton = document.createElement('button');
+                reportButton.innerHTML = '<span>举报受理</span>';
+                reportButton.onclick = () => changePage('reports');
+                
+                // 获取夜间模式按钮
+                const nightModeButton = document.getElementById('modeToggle');
+                
+                // 在夜间模式按钮之前插入举报受理按钮
+                sidebar.insertBefore(reportButton, nightModeButton);
+            }
+            loadComments(true); // 强制加载评论
         });
 
         function checkNightMode() {
@@ -827,6 +950,10 @@
                             break;
                         case 'about':
                             content.innerHTML = '<h1>关于我们</h1>';
+                            break;
+                        case 'reports':
+                            content.innerHTML = '<h1>举报受理</h1><div id="reportsList"></div>';
+                            loadReports();
                             break;
                     }
 
@@ -944,6 +1071,149 @@
             const isNightMode = document.body.classList.contains('night-mode');
             localStorage.setItem('nightMode', isNightMode);
         }
+
+        function showReplyForm(commentId) {
+            document.getElementById(`replyForm${commentId}`).style.display = 'block';
+        }
+
+        async function submitReply(commentId) {
+            console.log('Submitting reply for comment:', commentId);
+            const replyInput = document.getElementById(`replyInput${commentId}`);
+            const replyText = replyInput.value.trim();
+            if (replyText) {
+                showLoader();
+                try {
+                    const comments = await getComments();
+                    console.log('All comments:', comments);
+                    const commentIndex = comments.findIndex(c => (c.id || '').toString() === commentId.toString());
+                    console.log('Comment index:', commentIndex);
+                    if (commentIndex !== -1) {
+                        if (!comments[commentIndex].replies) {
+                            comments[commentIndex].replies = [];
+                        }
+                        comments[commentIndex].replies.push({
+                            text: replyText,
+                            date: new Date().toISOString(),
+                            isAdmin: sessionStorage.getItem('isAdmin') === 'true'
+                        });
+                        await updateComments(comments);
+                        replyInput.value = '';
+                        await loadComments(true);
+                        console.log('Reply submitted successfully');
+                    } else {
+                        console.error('Comment not found for ID:', commentId);
+                        showNotification('无法找到对应的评论，请刷新页面后重试。', true);
+                    }
+                } catch (error) {
+                    console.error('Failed to submit reply:', error);
+                    showNotification('提交回复失败，请稍后重试。', true);
+                } finally {
+                    hideLoader();
+                }
+            }
+        }
+
+        async function reportComment(commentId) {
+            const comments = await getComments();
+            const commentIndex = comments.findIndex(c => (c.id || '').toString() === commentId.toString());
+            if (commentIndex !== -1 && !comments[commentIndex].reported) {
+                comments[commentIndex].reported = true;
+                await updateComments(comments);
+                showNotification('评论已举报');
+            } else {
+                showNotification('该评论已被举报或不存在', true);
+            }
+        }
+
+        async function loadReports() {
+            const comments = await getComments();
+            const reportedComments = comments.filter(comment => comment.reported);
+            const reportsList = document.getElementById('reportsList');
+            reportsList.innerHTML = reportedComments.map((comment) => `
+                <div class="reported-comment">
+                    <p>${comment.text}</p>
+                    <small>${new Date(comment.date).toLocaleString()} - ${comment.isAdmin ? '管理员' : '访客'}</small>
+                    <div class="admin-panel">
+                        <button onclick="deleteReportedComment('${comment.id}')">删除评论</button>
+                        <button onclick="ignoreReport('${comment.id}')">忽略举报</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteReportedComment(commentId) {
+            const comments = await getComments();
+            const updatedComments = comments.filter(c => (c.id || '').toString() !== commentId.toString());
+            await updateComments(updatedComments);
+            loadReports();
+            showNotification('评论已删除');
+        }
+
+        async function ignoreReport(commentId) {
+            const comments = await getComments();
+            const commentIndex = comments.findIndex(c => (c.id || '').toString() === commentId.toString());
+            if (commentIndex !== -1) {
+                comments[commentIndex].reported = false;
+                await updateComments(comments);
+                loadReports();
+                showNotification('举报已忽略');
+            }
+        }
+
+        async function getComments() {
+            try {
+                const response = await axios.get(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+                    headers: { 'X-Master-Key': apiKey }
+                });
+                return response.data.record || [];
+            } catch (error) {
+                console.error('Failed to get comments:', error);
+                return [];
+            }
+        }
+
+        async function updateComments(comments) {
+            try {
+                await axios.put(`https://api.jsonbin.io/v3/b/${binId}`, comments, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': apiKey
+                    }
+                });
+                console.log('Comments updated successfully');
+            } catch (error) {
+                console.error('Failed to update comments:', error);
+            }
+        }
+
+        async function deleteComment(commentId) {
+            if (confirm('确定要删除这条评论吗？')) {
+                showLoader();
+                try {
+                    let comments = await getComments();
+                    comments = comments.filter(c => (c.id || '').toString() !== commentId.toString());
+                    await updateComments(comments);
+                    await loadComments(true);
+                    console.log('Comment deleted successfully');
+                } catch (error) {
+                    console.error('Failed to delete comment:', error);
+                    showNotification('删除评论失败，请稍后重试。', true);
+                } finally {
+                    hideLoader();
+                }
+            }
+        }
+
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.toggle('error', isError);
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
     </script>
+    <div id="notification" class="notification"></div>
 </body>
 </html>
