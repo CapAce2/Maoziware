@@ -230,6 +230,7 @@
     <script>
         const binId = '66ff96bfad19ca34f8b2788e'; // 替换为您的 Bin ID
         const apiKey = '$2a$10$RgEhjqeqmWDCMYTpIQG95eldbefxUbrCbZ8JFtEvwdmZYKd75Ahj.'; // 替换为您的 API 密钥
+        let lastCommentCount = 0;
 
         function showLoader() {
             document.getElementById('loader').style.display = 'block';
@@ -239,8 +240,8 @@
             document.getElementById('loader').style.display = 'none';
         }
 
-        // 加载评论
-        async function loadComments() {
+        // 修改加载评论函数
+        async function loadComments(forceUpdate = false) {
             showLoader();
             try {
                 const response = await axios.get(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
@@ -250,10 +251,8 @@
                 });
                 let comments = response.data.record;
                 
-                // 如果 comments 不是数组或为空，则初始化它
                 if (!Array.isArray(comments) || comments.length === 0) {
                     comments = [];
-                    // 初始化 JSONBin
                     await axios.put(`https://api.jsonbin.io/v3/b/${binId}`, comments, {
                         headers: {
                             'Content-Type': 'application/json',
@@ -262,17 +261,21 @@
                     });
                 }
 
-                const commentList = document.getElementById('commentList');
-                commentList.innerHTML = comments.map(comment => {
-                    const date = new Date(comment.date);
-                    const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
-                    return `
-                        <div class="comment">
-                            <p>${comment.text}</p>
-                            <small>${formattedDate}</small>
-                        </div>
-                    `;
-                }).join('');
+                // 检查是否有新评论或强制更新
+                if (comments.length > lastCommentCount || forceUpdate) {
+                    lastCommentCount = comments.length;
+                    const commentList = document.getElementById('commentList');
+                    commentList.innerHTML = comments.map(comment => {
+                        const date = new Date(comment.date);
+                        const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+                        return `
+                            <div class="comment">
+                                <p>${comment.text}</p>
+                                <small>${formattedDate}</small>
+                            </div>
+                        `;
+                    }).join('');
+                }
             } catch (error) {
                 console.error('Failed to load comments:', error);
             } finally {
@@ -280,7 +283,7 @@
             }
         }
 
-        // 添加评论
+        // 添加评论函数保持不变
         async function addComment() {
             const commentInput = document.getElementById('commentInput');
             const commentText = commentInput.value.trim();
@@ -294,7 +297,6 @@
                     });
                     let comments = response.data.record;
                     
-                    // 如果 comments 不是数组，则初始化它
                     if (!Array.isArray(comments)) {
                         comments = [];
                     }
@@ -311,7 +313,7 @@
                         }
                     });
                     commentInput.value = '';
-                    await loadComments();
+                    await loadComments(true); // 强制更新评论
                 } catch (error) {
                     console.error('Failed to post comment:', error);
                 } finally {
@@ -320,7 +322,18 @@
             }
         }
 
-        window.addEventListener('load', loadComments);
+        // 添加定期检查新评论的函数
+        function startCommentRefresh() {
+            setInterval(() => loadComments(), 10000); // 每10秒检查一次新评论
+        }
+
+        // 修改页面加载事件监听器
+        window.addEventListener('load', function() {
+            checkNightMode();
+            checkLogin();
+            loadComments(true); // 初始加载评论，强制更新
+            startCommentRefresh(); // 开始定期刷新
+        });
 
         function checkNightMode() {
             const isNightMode = localStorage.getItem('nightMode') === 'true';
@@ -329,11 +342,6 @@
                 document.getElementById('modeToggle').textContent = '日间模式';
             }
         }
-
-        window.addEventListener('load', function() {
-            checkNightMode();
-            checkLogin();
-        });
 
         function checkLogin() {
             const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
@@ -359,7 +367,7 @@
                             <div id="commentList" class="comment-list"></div>
                         </div>
                     `;
-                    loadComments(); // 确保在切换到主页时重新加载评论
+                    loadComments(true); // 确保在切换到主页时重新加载评论，强制更新
                     break;
                 case 'buy':
                     content.innerHTML = '<h1>辅助专区</h1>';
