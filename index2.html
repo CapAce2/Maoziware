@@ -404,6 +404,146 @@
                 opacity: 0;
             }
         }
+
+        .content.zoom-in {
+            animation: zoomIn 0.3s forwards;
+        }
+
+        .content.zoom-out {
+            animation: zoomOut 0.3s forwards;
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomOut {
+            from {
+                transform: scale(1);
+                opacity: 1;
+            }
+            to {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        .details-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .details-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            transform: scale(0.5);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        .details-content.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .night-mode .details-content {
+            background-color: #333;
+            color: white;
+        }
+
+        .details-container {
+            position: fixed; /* 改为 fixed 定 */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            .details-container {
+                top: 60px; /* 调整这个值来降低详情页高度 */
+                height: calc(100% - 60px); /* 调整高度以匹配顶部偏移 */
+            }
+        }
+
+        .night-mode .details-container {
+            background-color: #333;
+            color: white;
+        }
+
+        @media (min-width: 769px) {
+            .details-container {
+                left: 240px; /* 桌面端左侧留出导航栏的宽度 */
+                width: calc(100% - 240px); /* 宽度减去导航栏宽度 */
+            }
+        }
+
+        .zoom-in {
+            animation: zoomIn 0.3s forwards;
+        }
+
+        .zoom-out {
+            animation: zoomOut 0.3s forwards;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes zoomOut {
+            from { transform: scale(1); opacity: 1; }
+            to { transform: scale(0.5); opacity: 0; }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        @media (min-width: 769px) {
+            .overlay {
+                left: 240px; /* 桌面端左侧留出导航栏的宽度 */
+            }
+        }
+
+        .details-container {
+            /* ... 保持其他样式不变 ... */
+            z-index: 1000; /* 确保详情页在遮罩层之上 */
+        }
     </style>
 </head>
 <body>
@@ -576,102 +716,160 @@
                 inClass = isMovingForward ? 'slide-down' : 'slide-up';
             }
             
-            // 如果不是第一次页面切换，添加动画类
-            if (!isFirstPageChange) {
-                content.classList.add(outClass);
-            }
-            
             // 移除所有按钮的 active 类
             document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
             
             // 为当前选中的页面按钮添加 active 类
-            document.querySelector(`.sidebar button[onclick="changePage('${page}')"]`).classList.add('active');
+            const activeButton = document.querySelector(`.sidebar button[onclick="changePage('${page}')"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
 
-            // 更新内容
-            const updateContent = () => {
-                content.innerHTML = '';
-                
-                switch(page) {
-                    case 'home':
-                        content.innerHTML = `
-                            <h1 class="page-title">欢迎来到 Maoziware</h1>
-                            <div class="comment-section">
-                                <h2>网站评论</h2>
-                                <div class="comment-form">
-                                    <textarea id="commentInput" placeholder="请输入您的评论" rows="4"></textarea>
-                                    <button onclick="addComment()">提交评论</button>
-                                </div>
-                                <div id="loader" class="loader"></div>
-                                <div id="commentList" class="comment-list"></div>
-                            </div>
-                        `;
-                        loadComments(true);
-                        break;
-                    case 'buy':
-                        content.innerHTML = '<h1>辅助专区</h1>';
-                        const container = document.createElement('div');
-                        container.className = 'image-container-wrapper';
-                        container.innerHTML = `
-                            <div class="image-container" data-category="csgo" onclick="showDetails('timapple')">
-                                <img src="timapple.jpg" alt="Tim Apple">
-                                <div class="image-text">Tim-apple</div>
-                            </div>
-                            <div class="image-container" data-category="csgo" onclick="showDetails('aimstar')">
-                                <img src="aimstar.jpg" alt="Aimstar">
-                                <div class="image-text">Aimstar</div>
-                            </div>
-                            <div class="image-container" data-category="other" onclick="showDetails('rensen')">
-                                <img src="rensen.jpg" alt="Rensen">
-                                <div class="image-text">Rensen</div>
-                            </div>
-                            <div class="image-container" data-category="csgo" onclick="showDetails('passathook')">
-                                <img src="passathook.jpg" alt="PassatHook">
-                                <div class="image-text">PassatHook</div>
-                            </div>
-                        `;
-                        content.appendChild(container);
-                        break;
-                    case 'about':
-                        content.innerHTML = '<h1>关于我们</h1>';
-                        break;
-                }
+            // 检查是否存在详情页
+            const detailsContainer = document.getElementById('details');
+            const overlay = document.getElementById('detailsOverlay');
 
-                // 如果不是第一次页面切换，添加滑入效果
+            const performPageTransition = () => {
+                // 如果不是第一次页面切换，添加动画类
                 if (!isFirstPageChange) {
-                    content.classList.remove(outClass);
-                    void content.offsetWidth; // 触发重排
-                    content.classList.add(inClass);
-
-                    // 移除滑入类，为下一次切换做准备
-                    setTimeout(() => {
-                        content.classList.remove(inClass);
-                    }, 300);
+                    content.classList.add(outClass);
                 }
 
-                currentPage = page;
-                isFirstPageChange = false;
+                setTimeout(() => {
+                    content.innerHTML = '';
+                    
+                    switch(page) {
+                        case 'home':
+                            content.innerHTML = `
+                                <h1 class="page-title">欢迎来到 Maoziware</h1>
+                                <div class="comment-section">
+                                    <h2>网站评论</h2>
+                                    <div class="comment-form">
+                                        <textarea id="commentInput" placeholder="请输入您的评论" rows="4"></textarea>
+                                        <button onclick="addComment()">提交评论</button>
+                                    </div>
+                                    <div id="loader" class="loader"></div>
+                                    <div id="commentList" class="comment-list"></div>
+                                </div>
+                            `;
+                            loadComments(true);
+                            break;
+                        case 'buy':
+                            content.innerHTML = '<h1>辅助专区</h1>';
+                            const container = document.createElement('div');
+                            container.className = 'image-container-wrapper';
+                            container.innerHTML = `
+                                <div class="image-container" data-category="csgo" onclick="showDetails('timapple')">
+                                    <img src="timapple.jpg" alt="Tim Apple">
+                                    <div class="image-text">Tim-apple</div>
+                                </div>
+                                <div class="image-container" data-category="csgo" onclick="showDetails('aimstar')">
+                                    <img src="aimstar.jpg" alt="Aimstar">
+                                    <div class="image-text">Aimstar</div>
+                                </div>
+                                <div class="image-container" data-category="other" onclick="showDetails('rensen')">
+                                    <img src="rensen.jpg" alt="Rensen">
+                                    <div class="image-text">Rensen</div>
+                                </div>
+                                <div class="image-container" data-category="csgo" onclick="showDetails('passathook')">
+                                    <img src="passathook.jpg" alt="PassatHook">
+                                    <div class="image-text">PassatHook</div>
+                                </div>
+                            `;
+                            content.appendChild(container);
+                            break;
+                        case 'about':
+                            content.innerHTML = '<h1>关于我们</h1>';
+                            break;
+                    }
+
+                    // 如果不是第一次页面切换，添加滑入效果
+                    if (!isFirstPageChange) {
+                        content.classList.remove(outClass);
+                        void content.offsetWidth; // 触发重排
+                        content.classList.add(inClass);
+
+                        setTimeout(() => {
+                            content.classList.remove(inClass);
+                        }, 300);
+                    }
+
+                    currentPage = page;
+                    isFirstPageChange = false;
+                }, isFirstPageChange ? 0 : 300);
             };
 
-            // 如果是第一次页面切换，立即更新内容；否则，等待动画完成
-            if (isFirstPageChange) {
-                updateContent();
+            // 如果存在详情页，先关闭它
+            if (detailsContainer && overlay) {
+                detailsContainer.classList.add('zoom-out');
+                overlay.style.opacity = '0';
+                
+                setTimeout(() => {
+                    detailsContainer.remove();
+                    overlay.remove();
+                    content.classList.add(outClass);
+                    
+                    setTimeout(() => {
+                        performPageTransition();
+                    }, 300);
+                }, 300);
             } else {
-                setTimeout(updateContent, 300);
+                performPageTransition();
             }
         }
 
         function showDetails(product) {
             const content = document.getElementById('content');
-            content.innerHTML = `
-                <div class="details-container">
-                    <h1>${product} 详情</h1>
-                    <img src="${product}.jpg" alt="${product}" style="width: 100%; max-width: 1000px; height: auto;">
-                    <div class="button-container">
-                        <button onclick="changePage('buy')">返回辅助列表</button>
-                        <button onclick="downloadHelper('${product}')">下载该辅助</button>
-                    </div>
+            const existingDetails = document.getElementById('details');
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            overlay.id = 'detailsOverlay';
+            
+            if (existingDetails) {
+                existingDetails.remove();
+            }
+            
+            const detailsContainer = document.createElement('div');
+            detailsContainer.id = 'details';
+            detailsContainer.className = 'details-container';
+            detailsContainer.innerHTML = `
+                <h1>${product} 详情</h1>
+                <img src="${product}.jpg" alt="${product}" style="width: 100%; max-width: 1000px; height: auto;">
+                <div class="button-container">
+                    <button onclick="returnToBuyPage()">返回辅助列表</button>
+                    <button onclick="downloadHelper('${product}')">下载该辅助</button>
                 </div>
             `;
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(detailsContainer);
+            
+            // 触发重排
+            void detailsContainer.offsetWidth;
+            
+            overlay.style.display = 'block';
+            detailsContainer.style.display = 'block';
+            detailsContainer.classList.add('zoom-in');
+            
+            setTimeout(() => {
+                detailsContainer.classList.remove('zoom-in');
+            }, 300);
+
+            currentPage = 'details';
+        }
+
+        function returnToBuyPage() {
+            const detailsContainer = document.getElementById('details');
+            const overlay = document.getElementById('detailsOverlay');
+            if (detailsContainer) {
+                detailsContainer.classList.add('zoom-out');
+                
+                setTimeout(() => {
+                    detailsContainer.remove();
+                    overlay.remove();
+                    currentPage = 'buy';
+                }, 300);
+            }
         }
 
         function downloadHelper(helperName) {
