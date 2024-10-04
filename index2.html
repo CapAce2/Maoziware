@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maoziware - 主页</title>
+    <link rel="icon" href="app_icon.ico" type="image/x-icon">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,10 +20,16 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
         }
         .content {
             flex-grow: 1;
             padding: 20px;
+            margin-left: 240px;
+            width: calc(100% - 240px);
+            box-sizing: border-box;
         }
         button {
             margin-bottom: 10px;
@@ -53,6 +60,15 @@
             position: relative;
             display: inline-block;
             cursor: pointer;
+            margin: 10px;
+            width: 350px; /* 设置固定宽度 */
+            height: 185px; /* 设置固定高度 */
+            overflow: hidden; /* 隐藏超出部分 */
+        }
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 确保图片填充整个容器 */
         }
         .image-text {
             position: absolute;
@@ -80,6 +96,96 @@
             padding: 10px 20px;
             font-size: 16px;
         }
+        
+        /* 移动设备适配 */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 10px;
+            }
+            .content {
+                margin-left: 0;
+                width: 100%;
+                padding: 10px;
+            }
+            .image-container img {
+                width: 100% !important;
+                height: auto !important;
+            }
+            .details-container img {
+                width: 100% !important;
+                height: auto !important;
+            }
+            .button-container {
+                display: flex;
+                flex-direction: column;
+            }
+            .button-container button {
+                margin: 5px 0;
+            }
+        }
+        
+        .comment-section {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .comment-form {
+            width: 100%;
+        }
+        .comment-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            height: 100px;
+            box-sizing: border-box;
+        }
+        .comment-form .options {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .comment-form .options label {
+            margin-left: 5px;
+        }
+        .comment-form button {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .comment-list {
+            margin-top: 20px;
+        }
+        .comment {
+            background-color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .night-mode .comment-section {
+            background-color: #444;
+        }
+        .night-mode .comment {
+            background-color: #333;
+        }
+        .night-mode .comment-form textarea {
+            background-color: #333;
+            color: #fff;
+            border-color: #555;
+        }
     </style>
 </head>
 <body>
@@ -91,6 +197,14 @@
     </div>
     <div class="content" id="content">
         <h1>欢迎来到 Maoziware</h1>
+        <div class="comment-section">
+            <h2>网站评论</h2>
+            <div class="comment-form">
+                <textarea id="commentInput" placeholder="请输入您的评论" rows="4"></textarea>
+                <button onclick="addComment()">提交评论</button>
+            </div>
+            <div id="commentList" class="comment-list"></div>
+        </div>
     </div>
 
     <script>
@@ -105,6 +219,7 @@
         window.addEventListener('load', function() {
             checkNightMode();
             checkLogin();
+            loadComments(); // 加载评论
         });
 
         function checkLogin() {
@@ -116,26 +231,45 @@
 
         function changePage(page) {
             const content = document.getElementById('content');
+            content.innerHTML = '';
             switch(page) {
                 case 'home':
-                    content.innerHTML = '<h1>欢迎来到 Maoziware</h1>';
-                    break;
-                case 'buy':
                     content.innerHTML = `
-                        <h1>辅助专区</h1>
-                        <div class="image-container" onclick="showDetails('timapple')">
-                            <img src="timapple.jpg" alt="Tim Apple" style="width: 350px; height: auto;">
-                            <div class="image-text">Tim-apple</div>
-                        </div>
-                        <div class="image-container" onclick="showDetails('aimstar')">
-                            <img src="aimstar.jpg" alt="Aimstar" style="width: 350px; height: 185px;">
-                            <div class="image-text">Aimstar</div>
-                        </div>
-                        <div class="image-container" onclick="showDetails('rensen')">
-                            <img src="rensen.jpg" alt="Rensen" style="width: 350px; height: 185px;">
-                            <div class="image-text">Rensen</div>
+                        <h1>欢迎来到 Maoziware</h1>
+                        <div class="comment-section">
+                            <h2>网站评论</h2>
+                            <div class="comment-form">
+                                <textarea id="commentInput" placeholder="请输入您的评论" rows="4"></textarea>
+                                <button onclick="addComment()">提交评论</button>
+                            </div>
+                            <div id="commentList" class="comment-list"></div>
                         </div>
                     `;
+                    loadComments();
+                    break;
+                case 'buy':
+                    content.innerHTML = '<h1>辅助专区</h1>';
+                    const container = document.createElement('div');
+                    container.className = 'image-container-wrapper';
+                    container.innerHTML = `
+                        <div class="image-container" data-category="csgo" onclick="showDetails('timapple')">
+                            <img src="timapple.jpg" alt="Tim Apple">
+                            <div class="image-text">Tim-apple</div>
+                        </div>
+                        <div class="image-container" data-category="csgo" onclick="showDetails('aimstar')">
+                            <img src="aimstar.jpg" alt="Aimstar">
+                            <div class="image-text">Aimstar</div>
+                        </div>
+                        <div class="image-container" data-category="other" onclick="showDetails('rensen')">
+                            <img src="rensen.jpg" alt="Rensen">
+                            <div class="image-text">Rensen</div>
+                        </div>
+                        <div class="image-container" data-category="csgo" onclick="showDetails('passathook')">
+                            <img src="passathook.jpg" alt="PassatHook">
+                            <div class="image-text">PassatHook</div>
+                        </div>
+                    `;
+                    content.appendChild(container);
                     break;
                 case 'about':
                     content.innerHTML = '<h1>关于我们</h1>';
@@ -145,44 +279,16 @@
 
         function showDetails(product) {
             const content = document.getElementById('content');
-            switch(product) {
-                case 'timapple':
-                    content.innerHTML = `
-                        <div class="details-container">
-                            <h1>Tim-apple 详情</h1>
-                            <img src="timapple.jpg" alt="Tim Apple" style="width: 1000px; height: auto;">
-                            <div class="button-container">
-                                <button onclick="changePage('buy')">返回辅助列表</button>
-                                <button onclick="downloadHelper('timapple')">下载该辅助</button>
-                            </div>
-                        </div>
-                    `;
-                    break;
-                case 'aimstar':
-                    content.innerHTML = `
-                        <div class="details-container">
-                            <h1>Aimstar 详情</h1>
-                            <img src="aimstar.jpg" alt="Aimstar" style="width: 1000px; height: auto;">
-                            <div class="button-container">
-                                <button onclick="changePage('buy')">返回辅助列表</button>
-                                <button onclick="downloadHelper('aimstar')">下载该辅助</button>
-                            </div>
-                        </div>
-                    `;
-                    break;
-                case 'rensen':
-                    content.innerHTML = `
-                        <div class="details-container">
-                            <h1>Rensen 详情</h1>
-                            <img src="rensen.jpg" alt="Rensen" style="width: 1000px; height: auto;">
-                            <div class="button-container">
-                                <button onclick="changePage('buy')">返回辅助列表</button>
-                                <button onclick="downloadHelper('rensen')">下载该辅助</button>
-                            </div>
-                        </div>
-                    `;
-                    break;
-            }
+            content.innerHTML = `
+                <div class="details-container">
+                    <h1>${product} 详情</h1>
+                    <img src="${product}.jpg" alt="${product}" style="width: 100%; max-width: 1000px; height: auto;">
+                    <div class="button-container">
+                        <button onclick="changePage('buy')">返回辅助列表</button>
+                        <button onclick="downloadHelper('${product}')">下载该辅助</button>
+                    </div>
+                </div>
+            `;
         }
 
         function downloadHelper(helperName) {
@@ -192,6 +298,8 @@
                 window.location.href = 'https://www.123684.com/s/Xv2tVv-ua3AA';
             } else if (helperName === 'rensen') {
                 window.location.href = 'https://www.123684.com/s/Xv2tVv-Sa3AA';
+            } else if (helperName === 'passathook') {
+                window.location.href = 'https://www.123684.com/s/Xv2tVv-ja3AA';
             }
         }
 
@@ -207,6 +315,33 @@
             
             const isNightMode = document.body.classList.contains('night-mode');
             localStorage.setItem('nightMode', isNightMode);
+        }
+
+        async function addComment() {
+            const commentInput = document.getElementById('commentInput');
+            const comment = commentInput.value.trim();
+            if (comment) {
+                const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+                const newComment = {
+                    text: comment,
+                    date: new Date().toLocaleString()
+                };
+                comments.push(newComment);
+                localStorage.setItem('comments', JSON.stringify(comments));
+                commentInput.value = '';
+                loadComments();
+            }
+        }
+
+        function loadComments() {
+            const commentList = document.getElementById('commentList');
+            const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+            commentList.innerHTML = comments.map(comment => `
+                <div class="comment">
+                    <p>${comment.text}</p>
+                    <small>${comment.date}</small>
+                </div>
+            `).join('');
         }
     </script>
 </body>

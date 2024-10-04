@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maoziware - 登录</title>
+    <link rel="icon" href="app_icon.ico" type="image/x-icon">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -110,7 +111,7 @@
             event.preventDefault();
             var inviteCode = document.getElementById('inviteCode').value;
             if (inviteCode === '114514') {
-                sessionStorage.setItem('isLoggedIn', 'true'); // 使用 sessionStorage 保存登录状态
+                sessionStorage.setItem('isLoggedIn', 'true');
                 var overlay = document.getElementById('overlay');
                 overlay.style.display = 'flex';
                 var popup = overlay.querySelector('.popup');
@@ -127,7 +128,7 @@
                     countdownElement.textContent = countdown;
                     if (countdown <= 0) {
                         clearInterval(countdownInterval);
-                        window.location.href = 'index2.html'; // 跳转到主页
+                        window.location.href = 'index2.html';
                     }
                 }, 1000);
             } else {
