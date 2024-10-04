@@ -74,6 +74,10 @@
         .popup h3 {
             font-size: 28px;
             margin-bottom: 20px;
+            color: #333; /* 默认颜色 */
+        }
+        .popup.error h3 {
+            color: #ff0000; /* 错误消息的颜色 */
         }
         .popup p {
             font-size: 22px;
@@ -89,6 +93,23 @@
             }
         }
     </style>
+    <script>
+        // 添加加密和解密函数
+        function encryptCode(code) {
+            return btoa(code.split('').map(char => 
+                String.fromCharCode(char.charCodeAt(0) + 1)
+            ).join(''));
+        }
+
+        function decryptCode(encodedCode) {
+            return atob(encodedCode).split('').map(char => 
+                String.fromCharCode(char.charCodeAt(0) - 1)
+            ).join('');
+        }
+
+        // 加密的邀请码
+        const encryptedInviteCode = encryptCode('114514');
+    </script>
 </head>
 <body>
     <div class="login-form">
@@ -101,8 +122,8 @@
 
     <div id="overlay" class="overlay">
         <div class="popup">
-            <h3>欢迎使用Maoziware</h3>
-            <p>将在 <span id="countdown">2</span> 秒后跳转到主页...</p>
+            <h3 id="popupTitle">欢迎使用Maoziware</h3>
+            <p id="popupMessage">将在 <span id="countdown">2</span> 秒后跳转到主页...</p>
         </div>
     </div>
 
@@ -110,15 +131,18 @@
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
             var inviteCode = document.getElementById('inviteCode').value;
-            if (inviteCode === '114514') {
+            var overlay = document.getElementById('overlay');
+            var popup = overlay.querySelector('.popup');
+            var popupTitle = document.getElementById('popupTitle');
+            var popupMessage = document.getElementById('popupMessage');
+
+            // 使用解密函数来比较邀请码
+            if (inviteCode === decryptCode(encryptedInviteCode)) {
                 sessionStorage.setItem('isLoggedIn', 'true');
-                var overlay = document.getElementById('overlay');
+                popupTitle.textContent = '欢迎使用Maoziware';
+                popupMessage.innerHTML = '将在 <span id="countdown">2</span> 秒后跳转到主页...';
+                popup.classList.remove('error');
                 overlay.style.display = 'flex';
-                var popup = overlay.querySelector('.popup');
-                popup.style.animation = 'none';
-                setTimeout(() => {
-                    popup.style.animation = '';
-                }, 10);
                 
                 // 添加倒计时功能
                 var countdown = 2;
@@ -132,8 +156,21 @@
                     }
                 }, 1000);
             } else {
-                alert('邀请码不正确，请重试。');
+                popupTitle.textContent = '邀请码错误';
+                popupMessage.textContent = '请重新输入正确的邀请码。';
+                popup.classList.add('error');
+                overlay.style.display = 'flex';
+                
+                // 2秒后自动关闭错误提示
+                setTimeout(function() {
+                    closePopup();
+                }, 2000);
             }
+
+            popup.style.animation = 'none';
+            setTimeout(() => {
+                popup.style.animation = '';
+            }, 10);
         });
 
         function closePopup() {
