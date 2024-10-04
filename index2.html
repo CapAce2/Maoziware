@@ -248,7 +248,20 @@
                         'X-Master-Key': apiKey
                     }
                 });
-                const comments = response.data.record;
+                let comments = response.data.record;
+                
+                // 如果 comments 不是数组或为空，则初始化它
+                if (!Array.isArray(comments) || comments.length === 0) {
+                    comments = [];
+                    // 初始化 JSONBin
+                    await axios.put(`https://api.jsonbin.io/v3/b/${binId}`, comments, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': apiKey
+                        }
+                    });
+                }
+
                 const commentList = document.getElementById('commentList');
                 commentList.innerHTML = comments.map(comment => {
                     const date = new Date(comment.date);
@@ -279,7 +292,13 @@
                             'X-Master-Key': apiKey
                         }
                     });
-                    const comments = response.data.record || [];
+                    let comments = response.data.record;
+                    
+                    // 如果 comments 不是数组，则初始化它
+                    if (!Array.isArray(comments)) {
+                        comments = [];
+                    }
+
                     comments.push({
                         text: commentText,
                         date: new Date().toISOString()
