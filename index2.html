@@ -544,6 +544,21 @@
             /* ... 保持其他样式不变 ... */
             z-index: 1000; /* 确保详情页在遮罩层之上 */
         }
+
+        .comment.admin-comment {
+            border-left: 5px solid #4CAF50;
+            background-color: #f0f8ff;
+        }
+
+        .comment .pinned {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+
+        .night-mode .comment.admin-comment {
+            background-color: #2c3e50;
+        }
     </style>
 </head>
 <body>
@@ -579,6 +594,18 @@
             document.getElementById('loader').style.display = 'none';
         }
 
+        // 生成简单的浏览器指纹
+        function generateFingerprint() {
+            return navigator.userAgent + screen.width + screen.height + navigator.language;
+        }
+
+        // 检查是否是"管理员"
+        function isAdmin() {
+            const fingerprint = generateFingerprint();
+            const adminFingerprint = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.361920108en-US"; // 预设的管理员指纹
+            return fingerprint === adminFingerprint;
+        }
+
         // 修改加载评论函数
         async function loadComments(forceUpdate = false) {
             showLoader();
@@ -604,13 +631,25 @@
                 if (comments.length > lastCommentCount || forceUpdate) {
                     lastCommentCount = comments.length;
                     const commentList = document.getElementById('commentList');
+
+                    // 将管理员评论置顶
+                    comments.sort((a, b) => {
+                        if (a.isAdmin && !b.isAdmin) return -1;
+                        if (!a.isAdmin && b.isAdmin) return 1;
+                        return new Date(b.date) - new Date(a.date);
+                    });
+
                     commentList.innerHTML = comments.map(comment => {
                         const date = new Date(comment.date);
                         const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+                        const userType = comment.isAdmin ? '管理员' : '访客';
+                        const adminClass = comment.isAdmin ? 'admin-comment' : '';
+                        const pinnedTag = comment.isAdmin ? '<div class="pinned">置顶</div>' : '';
                         return `
-                            <div class="comment">
+                            <div class="comment ${adminClass}">
+                                ${pinnedTag}
                                 <p>${comment.text}</p>
-                                <small>${formattedDate}</small>
+                                <small>${formattedDate} - ${userType}</small>
                             </div>
                         `;
                     }).join('');
@@ -622,7 +661,7 @@
             }
         }
 
-        // 添加评论函数保持不变
+        // 修改添加评论函数
         async function addComment() {
             const commentInput = document.getElementById('commentInput');
             const commentText = commentInput.value.trim();
@@ -640,9 +679,17 @@
                         comments = [];
                     }
 
+                    const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+
+                    if (isAdmin) {
+                        // 如果是管理员，删除之前的管理员评论
+                        comments = comments.filter(comment => !comment.isAdmin);
+                    }
+
                     comments.push({
                         text: commentText,
-                        date: new Date().toISOString()
+                        date: new Date().toISOString(),
+                        isAdmin: isAdmin
                     });
 
                     await axios.put(`https://api.jsonbin.io/v3/b/${binId}`, comments, {

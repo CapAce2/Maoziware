@@ -93,23 +93,6 @@
             }
         }
     </style>
-    <script>
-        // 添加加密和解密函数
-        function encryptCode(code) {
-            return btoa(code.split('').map(char => 
-                String.fromCharCode(char.charCodeAt(0) + 1)
-            ).join(''));
-        }
-
-        function decryptCode(encodedCode) {
-            return atob(encodedCode).split('').map(char => 
-                String.fromCharCode(char.charCodeAt(0) - 1)
-            ).join('');
-        }
-
-        // 加密的邀请码
-        const encryptedInviteCode = encryptCode('114514');
-    </script>
 </head>
 <body>
     <div class="login-form">
@@ -128,6 +111,21 @@
     </div>
 
     <script>
+        function encryptCode(code) {
+            return btoa(code.split('').map(char => 
+                String.fromCharCode(char.charCodeAt(0) + 1)
+            ).join(''));
+        }
+
+        function decryptCode(encodedCode) {
+            return atob(encodedCode).split('').map(char => 
+                String.fromCharCode(char.charCodeAt(0) - 1)
+            ).join('');
+        }
+
+        const encryptedInviteCode = encryptCode('114514');
+        const encryptedAdminCode = encryptCode('1234qwer');
+
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
             var inviteCode = document.getElementById('inviteCode').value;
@@ -136,35 +134,28 @@
             var popupTitle = document.getElementById('popupTitle');
             var popupMessage = document.getElementById('popupMessage');
 
-            // 使用解密函数来比较邀请码
-            if (inviteCode === decryptCode(encryptedInviteCode)) {
+            if (inviteCode === decryptCode(encryptedAdminCode)) {
                 sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('isAdmin', 'true');
+                popupTitle.textContent = '欢迎使用Maoziware (管理员)';
+                popupMessage.innerHTML = '将在 <span id="countdown">2</span> 秒后跳转到主页...';
+                popup.classList.remove('error');
+                overlay.style.display = 'flex';
+                startCountdown();
+            } else if (inviteCode === decryptCode(encryptedInviteCode)) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('isAdmin', 'false');
                 popupTitle.textContent = '欢迎使用Maoziware';
                 popupMessage.innerHTML = '将在 <span id="countdown">2</span> 秒后跳转到主页...';
                 popup.classList.remove('error');
                 overlay.style.display = 'flex';
-                
-                // 添加倒计时功能
-                var countdown = 2;
-                var countdownElement = document.getElementById('countdown');
-                var countdownInterval = setInterval(function() {
-                    countdown--;
-                    countdownElement.textContent = countdown;
-                    if (countdown <= 0) {
-                        clearInterval(countdownInterval);
-                        window.location.href = 'index2.html';
-                    }
-                }, 1000);
+                startCountdown();
             } else {
                 popupTitle.textContent = '邀请码错误';
                 popupMessage.textContent = '请重新输入正确的邀请码。';
                 popup.classList.add('error');
                 overlay.style.display = 'flex';
-                
-                // 2秒后自动关闭错误提示
-                setTimeout(function() {
-                    closePopup();
-                }, 2000);
+                setTimeout(closePopup, 2000);
             }
 
             popup.style.animation = 'none';
@@ -172,6 +163,19 @@
                 popup.style.animation = '';
             }, 10);
         });
+
+        function startCountdown() {
+            var countdown = 2;
+            var countdownElement = document.getElementById('countdown');
+            var countdownInterval = setInterval(function() {
+                countdown--;
+                countdownElement.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    window.location.href = 'index2.html';
+                }
+            }, 1000);
+        }
 
         function closePopup() {
             document.getElementById('overlay').style.display = 'none';
