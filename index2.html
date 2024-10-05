@@ -281,7 +281,7 @@
             transition: background-color 0.3s;
             width: 100%; /* 按钮宽度填满导航栏 */
             font-size: 18px; /* 增加字体大小 */
-            font-weight: bold; /* 加粗字体 */
+            font-weight: bold; /* 粗字体 */
             transition: background-color 0.3s, color 0.3s; /* 添加颜色过渡效果 */
         }
 
@@ -542,7 +542,7 @@
 
         .details-container {
             /* ... 保持其他样式不变 ... */
-            z-index: 1000; /* 确保情页在遮罩层之上 */
+            z-index: 1000; /* 确保情在遮罩层之上 */
         }
 
         .comment.admin-comment {
@@ -634,7 +634,17 @@
             border-radius: 5px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             z-index: 1000;
-            display: none;
+            max-width: 300px;
+            word-wrap: break-word;
+            transform-origin: top right;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        .notification.show {
+            transform: scale(1);
+            opacity: 1;
         }
 
         .notification.error {
@@ -648,13 +658,176 @@
         .night-mode .notification.error {
             background-color: #c0392b;
         }
+
+        .update-request {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0e0e0; /* 更改为稍微深一点的景色 */
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: 2px solid #4CAF50; /* 添加绿色边框 */
+        }
+
+        .update-request:hover {
+            background-color: #d0d0d0; /* 悬停时的背景色 */
+        }
+
+        .update-icon {
+            font-size: 48px;
+            color: #4CAF50;
+        }
+
+        .night-mode .update-request {
+            background-color: #444; /* 夜间模式下的背景色 */
+            border-color: #45a049; /* 夜间模式下的边框颜色 */
+        }
+
+        .night-mode .update-request:hover {
+            background-color: #555; /* 夜间模式下悬停时的背景色 */
+        }
+
+        .night-mode .update-icon {
+            color: #45a049;
+        }
+
+        .update-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .update-modal.show {
+            opacity: 1;
+        }
+
+        .update-modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+            transform: scale(0.7);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .update-modal.show .update-modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .update-modal-content textarea {
+            width: 100%;
+            height: 100px; /* 固定高度 */
+            margin-bottom: 10px;
+            resize: none; /* 禁止调整大小 */
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .night-mode .close-btn {
+            color: #ddd;
+        }
+
+        .night-mode .close-btn:hover,
+        .night-mode .close-btn:focus {
+            color: #fff;
+        }
+
+        .night-mode .update-modal-content {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .night-mode .update-modal-content textarea {
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #555;
+        }
+
+        .update-modal-content button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .night-mode .update-modal-content button {
+            background-color: #45a049;
+        }
+
+        .update-requests-container {
+            position: relative;
+            padding-top: 40px;
+        }
+
+        .clear-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 5px 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .clear-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .update-request-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+
+        .night-mode .update-request-item {
+            background-color: #333;
+        }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <button onclick="changePage('home')"><span>主页</span></button>
         <button onclick="changePage('buy')"><span>下载辅助</span></button>
+        <button onclick="window.open('https://www.123684.com/s/Xv2tVv-yB3AA', '_blank')"><span>下载桌面软件</span></button>
         <button onclick="changePage('about')"><span>关于我们</span></button>
+        <button id="updateRequestsButton" onclick="changePage('updateRequests')" style="display: none;"><span>求更新受理</span></button>
+        <button id="reportHandlingButton" onclick="changePage('reportHandling')" style="display: none;"><span>举报受理</span></button>
         <button onclick="toggleNightMode()" id="modeToggle"><span>夜间模式</span></button>
     </div>
     <div class="content" id="content">
@@ -669,18 +842,34 @@
             <div id="commentList" class="comment-list"></div>
         </div>
     </div>
+    <div id="updateModal" class="update-modal">
+        <div class="update-modal-content">
+            <span class="close-btn" onclick="closeUpdateModal()">&times;</span>
+            <h2>提交更新请求</h2>
+            <textarea id="updateRequest" placeholder="请输入您的更新请求内容" rows="5"></textarea>
+            <button onclick="submitUpdateRequest()">提交</button>
+        </div>
+    </div>
 
     <script>
-        const binId = '66ff96bfad19ca34f8b2788e'; // 替换为您的 Bin ID
-        const apiKey = '$2a$10$RgEhjqeqmWDCMYTpIQG95eldbefxUbrCbZ8JFtEvwdmZYKd75Ahj.'; // 替换为您 API 密钥
+        const binId = '66ff96bfad19ca34f8b2788e'; // 评论的 Bin ID
+        const updateRequestsBinId = '6700bae1e41b4d34e43d375d'; // 更新请求的 Bin ID
+        const reportsBinId = '67000635e41b4d34e43cef2d'; // 举报的 Bin ID
+        const apiKey = '$2a$10$RgEhjqeqmWDCMYTpIQG95eldbefxUbrCbZ8JFtEvwdmZYKd75Ahj.'; // API 密钥
         let lastCommentCount = 0;
 
         function showLoader() {
-            document.getElementById('loader').style.display = 'block';
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'block';
+            }
         }
 
         function hideLoader() {
-            document.getElementById('loader').style.display = 'none';
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
         }
 
         // 生成简单的浏览器指纹
@@ -725,47 +914,53 @@
                 if (comments.length > lastCommentCount || forceUpdate) {
                     lastCommentCount = comments.length;
                     const commentList = document.getElementById('commentList');
+                    
+                    if (commentList) {
+                        // 将管理员评论置顶
+                        comments.sort((a, b) => {
+                            if (a.isAdmin && !b.isAdmin) return -1;
+                            if (!a.isAdmin && b.isAdmin) return 1;
+                            return new Date(b.date) - new Date(a.date);
+                        });
 
-                    // 将管理员评论置顶
-                    comments.sort((a, b) => {
-                        if (a.isAdmin && !b.isAdmin) return -1;
-                        if (!a.isAdmin && b.isAdmin) return 1;
-                        return new Date(b.date) - new Date(a.date);
-                    });
-
-                    commentList.innerHTML = comments.map((comment, index) => {
-                        const date = new Date(comment.date);
-                        const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
-                        const deleteButton = sessionStorage.getItem('isAdmin') === 'true' ? 
-                            `<span class="delete-btn" onclick="deleteComment('${comment.id || index}')">删除</span>` : '';
-                        return `
-                            <div class="comment ${comment.isAdmin ? 'admin-comment' : ''}" data-comment-id="${comment.id || index}">
-                                ${comment.isAdmin ? '<div class="pinned">置顶</div>' : ''}
-                                <p>${comment.text}</p>
-                                <small>${formattedDate} - ${comment.isAdmin ? '管理员' : '访客'}</small>
-                                <div class="comment-actions">
-                                    <span class="reply-btn" onclick="showReplyForm('${comment.id || index}')">回复</span>
-                                    <span class="report-btn" onclick="reportComment('${comment.id || index}')">举报</span>
-                                </div>
-                                <div class="reply-form" id="replyForm${comment.id || index}">
-                                    <textarea id="replyInput${comment.id || index}" rows="2"></textarea>
-                                    <button onclick="submitReply('${comment.id || index}')">提交回复</button>
-                                </div>
-                                ${comment.replies && comment.replies.length > 0 ? `
-                                    <div class="replies">
-                                        ${comment.replies.map(reply => `
-                                            <div class="reply">
-                                                <p>${reply.text}</p>
-                                                <small>${new Date(reply.date).toLocaleString()} - ${reply.isAdmin ? '管理员' : '访客'}</small>
-                                            </div>
-                                        `).join('')}
+                        commentList.innerHTML = comments.map((comment, index) => {
+                            const date = new Date(comment.date);
+                            const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+                            const deleteButton = sessionStorage.getItem('isAdmin') === 'true' ? 
+                                `<span class="delete-btn" onclick="deleteComment('${comment.id || index}')">删除</span>` : '';
+                            const reportButton = !comment.isAdmin ? 
+                                `<span class="report-btn" onclick="reportComment('${comment.id || index}')">举报</span>` : '';
+                            return `
+                                <div class="comment ${comment.isAdmin ? 'admin-comment' : ''}" data-comment-id="${comment.id || index}">
+                                    ${comment.isAdmin ? '<div class="pinned">置顶</div>' : ''}
+                                    <p>${comment.text}</p>
+                                    <small>${formattedDate} - ${comment.isAdmin ? '管理员' : '访客'}</small>
+                                    <div class="comment-actions">
+                                        <span class="reply-btn" onclick="showReplyForm('${comment.id || index}')">回复</span>
+                                        ${reportButton}
                                     </div>
-                                ` : ''}
-                                ${deleteButton}
-                            </div>
-                        `;
-                    }).join('');
-                    console.log('Comments loaded and displayed');
+                                    <div class="reply-form" id="replyForm${comment.id || index}">
+                                        <textarea id="replyInput${comment.id || index}" rows="2"></textarea>
+                                        <button onclick="submitReply('${comment.id || index}')">提交回复</button>
+                                    </div>
+                                    ${comment.replies && comment.replies.length > 0 ? `
+                                        <div class="replies">
+                                            ${comment.replies.map(reply => `
+                                                <div class="reply">
+                                                    <p>${reply.text}</p>
+                                                    <small>${new Date(reply.date).toLocaleString()} - ${reply.isAdmin ? '管理员' : '访客'}</small>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                    ${deleteButton}
+                                </div>
+                            `;
+                        }).join('');
+                        console.log('Comments loaded and displayed');
+                    } else {
+                        console.error('Comment list element not found');
+                    }
                 } else {
                     console.log('No new comments to display');
                 }
@@ -824,24 +1019,16 @@
         }
 
         // 修改页面加载事件监听器
-        window.addEventListener('load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             checkNightMode();
             checkLogin();
-            changePage('home'); // 直接调用 changePage 函数，加载主页内容
-            startCommentRefresh(); // 开始定期刷新评论
+            changePage('home');
+            startCommentRefresh();
             if (sessionStorage.getItem('isAdmin') === 'true') {
-                const sidebar = document.querySelector('.sidebar');
-                const reportButton = document.createElement('button');
-                reportButton.innerHTML = '<span>举报受理</span>';
-                reportButton.onclick = () => changePage('reports');
-                
-                // 获取夜间模式按钮
-                const nightModeButton = document.getElementById('modeToggle');
-                
-                // 在夜间模式按钮之前插入举报受理按钮
-                sidebar.insertBefore(reportButton, nightModeButton);
+                document.getElementById('updateRequestsButton').style.display = 'block';
+                document.getElementById('reportHandlingButton').style.display = 'block';
             }
-            loadComments(true); // 强制加载评论
+            loadComments(true);
         });
 
         function checkNightMode() {
@@ -860,11 +1047,9 @@
         }
 
         let currentPage = null;
-        const pageOrder = ['home', 'buy', 'about'];
         let isFirstPageChange = true;
 
         function changePage(page) {
-            // 如果不是第一次页面切换，且目标页面与当前页面相同，则不执行任何操作
             if (!isFirstPageChange && page === currentPage) {
                 return;
             }
@@ -872,47 +1057,37 @@
             const content = document.getElementById('content');
             const isMobile = window.innerWidth <= 768;
             
-            // 确定滑动方向
             let outClass, inClass;
-            const currentIndex = pageOrder.indexOf(currentPage);
-            const newIndex = pageOrder.indexOf(page);
-            const isMovingForward = newIndex > currentIndex;
+            
+            // 获取所有侧边栏按钮
+            const sidebarButtons = Array.from(document.querySelectorAll('.sidebar button'));
+            
+            // 获取当前页面和目标页面的按钮索引
+            const currentButtonIndex = sidebarButtons.findIndex(btn => btn.onclick.toString().includes(`'${currentPage}'`));
+            const targetButtonIndex = sidebarButtons.findIndex(btn => btn.onclick.toString().includes(`'${page}'`));
+
+            // 判断目标页面按钮是否在当前页面按钮的下方
+            const isTargetBelow = targetButtonIndex > currentButtonIndex;
 
             if (isMobile) {
-                if (page === 'reports' || currentPage === 'reports') {
-                    // 如果是切换到或离开举报受理页面，反转动画方向
-                    outClass = isMovingForward ? 'slide-right' : 'slide-left';
-                    inClass = isMovingForward ? 'slide-left' : 'slide-right';
-                } else {
-                    outClass = isMovingForward ? 'slide-left' : 'slide-right';
-                    inClass = isMovingForward ? 'slide-right' : 'slide-left';
-                }
+                outClass = isTargetBelow ? 'slide-left' : 'slide-right';
+                inClass = isTargetBelow ? 'slide-right' : 'slide-left';
             } else {
-                if (page === 'reports' || currentPage === 'reports') {
-                    // 如果是切换到或离开举报受理页面，反转动画方向
-                    outClass = isMovingForward ? 'slide-down' : 'slide-up';
-                    inClass = isMovingForward ? 'slide-up' : 'slide-down';
-                } else {
-                    outClass = isMovingForward ? 'slide-up' : 'slide-down';
-                    inClass = isMovingForward ? 'slide-down' : 'slide-up';
-                }
+                outClass = isTargetBelow ? 'slide-up' : 'slide-down';
+                inClass = isTargetBelow ? 'slide-down' : 'slide-up';
             }
             
             // 移除所有按钮的 active 类
-            document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+            sidebarButtons.forEach(btn => btn.classList.remove('active'));
             
             // 为当前选中的页面按钮添加 active 类
-            const activeButton = document.querySelector(`.sidebar button[onclick="changePage('${page}')"]`);
-            if (activeButton) {
-                activeButton.classList.add('active');
-            }
+            sidebarButtons[targetButtonIndex].classList.add('active');
 
             // 检查是否存在详情页
             const detailsContainer = document.getElementById('details');
             const overlay = document.getElementById('detailsOverlay');
 
             const performPageTransition = () => {
-                // 如果不是第一次页面切换，添加动画类
                 if (!isFirstPageChange) {
                     content.classList.add(outClass);
                 }
@@ -957,19 +1132,30 @@
                                     <img src="passathook.jpg" alt="PassatHook">
                                     <div class="image-text">PassatHook</div>
                                 </div>
+                                <div class="image-container update-request" onclick="requestUpdate()">
+                                    <div class="update-icon">+</div>
+                                    <div class="image-text">求更新</div>
+                                </div>
                             `;
                             content.appendChild(container);
                             break;
                         case 'about':
                             content.innerHTML = '<h1>关于我们</h1>';
                             break;
-                        case 'reports':
+                        case 'reportHandling':
+                            console.log('切换到举报处理页面');
                             content.innerHTML = '<h1>举报受理</h1><div id="reportsList"></div>';
+                            console.log('举报处理页面 HTML 已设置');
                             loadReports();
+                            break;
+                        case 'updateRequests':
+                            console.log('切换到更新请求处理页面');
+                            content.innerHTML = '<h1>求更新受理</h1><div id="updateRequestsList" class="update-requests-container"></div>';
+                            console.log('更新请求处理页面 HTML 已设置');
+                            loadUpdateRequests();
                             break;
                     }
 
-                    // 如果不是第一次页面切换，添加滑入效果
                     if (!isFirstPageChange) {
                         content.classList.remove(outClass);
                         void content.offsetWidth; // 触发重排
@@ -1114,7 +1300,7 @@
                         console.log('Reply submitted successfully');
                     } else {
                         console.error('Comment not found for ID:', commentId);
-                        showNotification('无法找到对应的评论，请刷新页面后重试。', true);
+                        showNotification('无法找到对应的评，请刷新页后重试。', true);
                     }
                 } catch (error) {
                     console.error('Failed to submit reply:', error);
@@ -1126,49 +1312,165 @@
         }
 
         async function reportComment(commentId) {
-            const comments = await getComments();
-            const commentIndex = comments.findIndex(c => (c.id || '').toString() === commentId.toString());
-            if (commentIndex !== -1 && !comments[commentIndex].reported) {
-                comments[commentIndex].reported = true;
-                await updateComments(comments);
-                showNotification('评论已举报');
-            } else {
-                showNotification('该评论已被举报或不存在', true);
+            try {
+                const comments = await getComments();
+                const comment = comments.find(c => c.id === commentId);
+                if (comment) {
+                    if (comment.isAdmin) {
+                        showNotification('管理员评论不能被举报', true);
+                        return;
+                    }
+                    let reports = await getReports();
+                    reports.push({
+                        commentId: commentId,
+                        commentText: comment.text,
+                        date: new Date().toISOString()
+                    });
+                    await updateReports(reports);
+                    showNotification('评论已举报');
+                } else {
+                    showNotification('该评论不存在', true);
+                }
+            } catch (error) {
+                console.error('Failed to report comment:', error);
+                showNotification('举报评论失败，请稍后重试。', true);
             }
         }
 
         async function loadReports() {
-            const comments = await getComments();
-            const reportedComments = comments.filter(comment => comment.reported);
-            const reportsList = document.getElementById('reportsList');
-            reportsList.innerHTML = reportedComments.map((comment) => `
-                <div class="reported-comment">
-                    <p>${comment.text}</p>
-                    <small>${new Date(comment.date).toLocaleString()} - ${comment.isAdmin ? '管理员' : '访客'}</small>
-                    <div class="admin-panel">
-                        <button onclick="deleteReportedComment('${comment.id}')">删除评论</button>
-                        <button onclick="ignoreReport('${comment.id}')">忽略举报</button>
-                    </div>
-                </div>
-            `).join('');
+            try {
+                console.log('开始加载举报...');
+                const response = await axios.get(`https://api.jsonbin.io/v3/b/${reportsBinId}/latest`, {
+                    headers: { 'X-Master-Key': apiKey }
+                });
+                
+                const reports = response.data.record || [];
+                console.log('解析后的报数据:', reports);
+                
+                const reportsList = document.getElementById('reportsList');
+                
+                if (reports.length === 0) {
+                    console.log('没有举报数');
+                    reportsList.innerHTML = '<p>暂无举报</p>';
+                } else {
+                    console.log('开始生成举报列表 HTML');
+                    reportsList.innerHTML = reports.map((report, index) => `
+                        <div class="reported-comment">
+                            <p>${report.commentText}</p>
+                            <small>${new Date(report.date).toLocaleString()} - 评论ID: ${report.commentId}</small>
+                            <div class="admin-panel">
+                                <button onclick="deleteReportedComment('${report.commentId}', ${index})">删除评论</button>
+                                <button onclick="ignoreReport(${index})">忽略举报</button>
+                            </div>
+                        </div>
+                    `).join('');
+                    console.log('举报列表 HTML 生成完成');
+                }
+                
+                console.log('举报加载完成');
+            } catch (error) {
+                console.error('加载举报失败:', error);
+                showNotification('加载举报失败，请稍后重试。', true);
+            }
         }
 
-        async function deleteReportedComment(commentId) {
-            const comments = await getComments();
-            const updatedComments = comments.filter(c => (c.id || '').toString() !== commentId.toString());
-            await updateComments(updatedComments);
-            loadReports();
-            showNotification('评论已删除');
+        async function deleteReportedComment(commentId, reportIndex) {
+            if (confirm('确定要删除这条被举报的评论吗？')) {
+                try {
+                    // 删除评论
+                    let comments = await getComments();
+                    comments = comments.filter(c => c.id !== commentId);
+                    await updateComments(comments);
+
+                    // 删除举报
+                    let reports = await getReports();
+                    reports.splice(reportIndex, 1);
+                    await updateReports(reports);
+
+                    loadReports();
+                    showNotification('评论已删除，举报已处理');
+                } catch (error) {
+                    console.error('Failed to delete reported comment:', error);
+                    showNotification('删除评论失败，请稍后重试。', true);
+                }
+            }
         }
 
-        async function ignoreReport(commentId) {
-            const comments = await getComments();
-            const commentIndex = comments.findIndex(c => (c.id || '').toString() === commentId.toString());
-            if (commentIndex !== -1) {
-                comments[commentIndex].reported = false;
-                await updateComments(comments);
-                loadReports();
-                showNotification('举报已忽略');
+        async function ignoreReport(reportIndex) {
+            try {
+                let reports = await getReports();
+                console.log('Current reports:', reports);
+                reports.splice(reportIndex, 1); // 从举报列表中删除该举报
+                console.log('Reports after ignoring:', reports);
+                await updateReports(reports);
+                loadReports(); // 重新加载举报列表
+                showNotification('举报已忽略并从列表中删除');
+            } catch (error) {
+                console.error('Failed to ignore report:', error);
+                console.error('Error details:', error.response ? error.response.data : 'No response data');
+                showNotification('忽略举报失败，请稍后重试。', true);
+            }
+        }
+
+        async function getReports() {
+            try {
+                const response = await axios.get(`https://api.jsonbin.io/v3/b/${reportsBinId}/latest`, {
+                    headers: { 'X-Master-Key': apiKey }
+                });
+                return response.data.record || [];
+            } catch (error) {
+                console.error('Failed to get reports:', error);
+                return [];
+            }
+        }
+
+        async function updateReports(reports) {
+            const maxRetries = 3;
+            let retries = 0;
+
+            while (retries < maxRetries) {
+                try {
+                    // 确保 reports 是一个数组
+                    if (!Array.isArray(reports)) {
+                        reports = [];
+                    }
+
+                    // 移除可能导致问题的无效数据
+                    reports = reports.filter(report => 
+                        report && typeof report === 'object' && report.commentId && report.commentText && report.date
+                    );
+
+                    // 确保每个报告对象的属性都是字符串
+                    reports = reports.map(report => ({
+                        commentId: String(report.commentId),
+                        commentText: String(report.commentText),
+                        date: String(report.date)
+                    }));
+
+                    console.log('Sending reports to server:', JSON.stringify(reports));
+
+                    const response = await axios.put(`https://api.jsonbin.io/v3/b/${reportsBinId}`, reports, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': apiKey
+                        }
+                    });
+
+                    console.log('Reports updated successfully:', response.data);
+                    return;
+                } catch (error) {
+                    console.error(`Failed to update reports (attempt ${retries + 1}):`, error);
+                    console.error('Error response:', error.response ? error.response.data : 'No response data');
+                    retries++;
+
+                    if (retries >= maxRetries) {
+                        showNotification('更新举报失败，请稍后重试。', true);
+                        throw error;
+                    }
+
+                    // 等待一段时间后重试
+                    await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+                }
             }
         }
 
@@ -1220,10 +1522,133 @@
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.classList.toggle('error', isError);
-            notification.style.display = 'block';
+            notification.classList.add('show');
+            
             setTimeout(() => {
-                notification.style.display = 'none';
+                notification.classList.remove('show');
             }, 3000);
+        }
+
+        function requestUpdate() {
+            const updateModal = document.getElementById('updateModal');
+            updateModal.style.display = 'block';
+            // 触发重排
+            void updateModal.offsetWidth;
+            updateModal.classList.add('show');
+        }
+
+        function closeUpdateModal() {
+            const updateModal = document.getElementById('updateModal');
+            updateModal.classList.remove('show');
+            setTimeout(() => {
+                updateModal.style.display = 'none';
+            }, 300); // 等待动画完成
+        }
+
+        async function submitUpdateRequest() {
+            const requestContent = document.getElementById('updateRequest').value.trim();
+            if (requestContent) {
+                try {
+                    let updateRequests = await getUpdateRequests();
+                    updateRequests.push({
+                        content: requestContent,
+                        date: new Date().toISOString(),
+                        status: 'pending'
+                    });
+                    await updateUpdateRequests(updateRequests);
+                    closeUpdateModal();
+                    document.getElementById('updateRequest').value = '';
+                    showNotification('更新请求已提交，感谢您的反馈！');
+                } catch (error) {
+                    console.error('Failed to submit update request:', error);
+                    showNotification('提交更新请求失败，请稍后重试。', true);
+                }
+            }
+        }
+
+        async function getUpdateRequests() {
+            try {
+                const response = await axios.get(`https://api.jsonbin.io/v3/b/${updateRequestsBinId}/latest`, {
+                    headers: { 'X-Master-Key': apiKey }
+                });
+                return response.data.record || [];
+            } catch (error) {
+                console.error('Failed to get update requests:', error);
+                return [];
+            }
+        }
+
+        async function updateUpdateRequests(updateRequests) {
+            try {
+                console.log('正在更新更新请求...', updateRequests);
+                
+                // 确保 updateRequests 是一个数组
+                if (!Array.isArray(updateRequests)) {
+                    updateRequests = [];
+                }
+
+                // 移除可能导致问题的无效数据
+                updateRequests = updateRequests.filter(request => 
+                    request && typeof request === 'object' && request.content && request.date
+                );
+
+                // 确保每个请求对象的属性都是字符串
+                updateRequests = updateRequests.map(request => ({
+                    content: String(request.content),
+                    date: String(request.date),
+                    status: String(request.status || 'pending')
+                }));
+
+                console.log('发送到服务器的更新请求:', JSON.stringify(updateRequests));
+
+                const response = await axios.put(`https://api.jsonbin.io/v3/b/${updateRequestsBinId}`, updateRequests, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': apiKey
+                    }
+                });
+                console.log('更新请求已成功更新:', response.data);
+            } catch (error) {
+                console.error('Failed to update update requests:', error);
+                console.error('Error response:', error.response ? error.response.data : 'No response data');
+                throw error;
+            }
+        }
+
+        async function loadUpdateRequests() {
+            try {
+                console.log('开始加载更新请求...');
+                const updateRequests = await getUpdateRequests();
+                console.log('获取到的更新请求:', updateRequests);
+                const updateRequestsList = document.getElementById('updateRequestsList');
+                
+                let content = '';
+                
+                if (updateRequests.length === 0) {
+                    content += '<p>暂无更新请求</p>';
+                } else {
+                    content += updateRequests.map((request, index) => `
+                        <div class="update-request-item">
+                            <p>${request.content}</p>
+                            <small>${new Date(request.date).toLocaleString()}</small>
+                        </div>
+                    `).join('');
+                }
+                
+                updateRequestsList.innerHTML = content;
+                console.log('更新请求列表已加载');
+            } catch (error) {
+                console.error('Failed to load update requests:', error);
+                showNotification('载更新请求失败，请稍后重试。', true);
+            }
+        }
+
+        function closeUpdateModal() {
+            const updateModal = document.getElementById('updateModal');
+            updateModal.classList.remove('show');
+            setTimeout(() => {
+                updateModal.style.display = 'none';
+            }, 300); // 等待动画完成
         }
     </script>
     <div id="notification" class="notification"></div>
